@@ -14,7 +14,7 @@ services:
     build: .
     ports:
       - "8000:8000"
-    command: poetry run python musicshop/manage.py migrate && poetry run python musicshop/manage.py runserver 0.0.0.0:8000 --noreload
+    command: sh -c 'poetry run python musicshop/manage.py migrate && poetry run python musicshop/manage.py runserver 0.0.0.0:8000 --noreload'
     depends_on:
       - db
     environment:

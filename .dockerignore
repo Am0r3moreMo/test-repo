@@ -1,0 +1,54 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyc
+*.pyd
+
+# Virtualenv
+venv/
+.venv/
+env/
+
+# Editor & OS
+**/.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+.mypy_cache
+
+# Git
+.git/
+.gitignore
+
+# Byte-compiled / compiled files
+*.py[cod]
+*$py.class
+
+# Migrations (если ты их не хочешь копировать в образ — опционально)
+**/migrations/*.pyc
+**/migrations/__pycache__/
+
+# Media & static (если собираются отдельно или через volume)
+media/
+staticfiles/
+
+# Docker artifacts
+docker-compose.override.yml
+*.log
+*.db
+
+# Local configs
+.env
+.env.*
+
+# Node / frontend (если используешь)
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+dist/
+build/

@@ -1,0 +1,769 @@
+openapi: 3.0.1
+info:
+  title: Music Shop API
+  version: '2.0'
+servers:
+  - url: http://localhost:8091
+security:
+  - bearer-key: []
+paths:
+  /v2/users/{login}/cart:
+    get:
+      tags:
+        - users
+      summary: Получение корзины
+      operationId: getProductsInCart
+      parameters:
+        - name: login
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CartItemResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+    post:
+      tags:
+        - users
+      summary: Добавление товара
+      operationId: addProductToCart
+      parameters:
+        - name: login
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddProductToCartRequest'
+        required: true
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+  /v2/orders:
+    get:
+      tags:
+        - orders
+      summary: Получение заказов по логину
+      operationId: getOrdersByLogin
+      parameters:
+        - name: login
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: pageNumber
+          in: query
+          required: false
+          schema:
+            minimum: 1
+            type: integer
+            format: int32
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            minimum: 1
+            type: integer
+            format: int32
+            default: 6
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderPageResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+    post:
+      tags:
+        - orders
+      summary: Оформление заказа
+      operationId: makeOrder
+      parameters:
+        - name: login
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MakeOrderRequest'
+        required: true
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+  /v2/auth/sign-up:
+    post:
+      tags:
+        - auth
+      summary: Регистрация
+      operationId: signUp
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignUpRequest'
+        required: true
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+  /v2/auth/sign-in:
+    post:
+      tags:
+        - auth
+      operationId: signIn
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignInRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JwtAuthenticationResponse'
+  /v2/users/{login}/cart/{cartItemId}:
+    delete:
+      tags:
+        - users
+      summary: Удаление товара
+      operationId: deleteProductFromCart
+      parameters:
+        - name: login
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: cartItemId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+    patch:
+      tags:
+        - users
+      summary: Изменение количества товара
+      operationId: updateProductInCart
+      parameters:
+        - name: login
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: cartItemId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCartItemRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+  /v2/orders/{id}:
+    get:
+      tags:
+        - orders
+      summary: Получение заказа по ID
+      operationId: getOrderById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+    patch:
+      tags:
+        - orders
+      summary: Изменение статуса заказа
+      operationId: setOrderStatus
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetOrderStatusRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+  /v2/users/{login}:
+    get:
+      tags:
+        - users
+      summary: Получение информации о пользователе
+      operationId: getUserInfo
+      parameters:
+        - name: login
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfoResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+  /v2/products:
+    get:
+      tags:
+        - products
+      summary: Получение информации о товарах
+      operationId: getProductsByPageNumber
+      parameters:
+        - name: pageNumber
+          in: query
+          required: false
+          schema:
+            minimum: 1
+            type: integer
+            format: int32
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            minimum: 1
+            type: integer
+            format: int32
+            default: 6
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductPageResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+  /v2/products/{id}:
+    get:
+      tags:
+        - products
+      summary: Получение информации о товаре
+      operationId: getProductInfo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+  /v2/pickup-points:
+    get:
+      tags:
+        - pickup-points
+      summary: Получение точек доставки
+      operationId: getAllPickUpPoints
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PickUpPoint'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDescription'
+components:
+  schemas:
+    AddProductToCartRequest:
+      required:
+        - productId
+      type: object
+      properties:
+        productId:
+          type: string
+          format: uuid
+    ErrorDescription:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+    MakeOrderRequest:
+      required:
+        - needSpendBonuses
+        - pickUpPointId
+      type: object
+      properties:
+        customerId:
+          type: integer
+          format: int32
+        pickUpPointId:
+          type: string
+          format: uuid
+        needSpendBonuses:
+          type: boolean
+    SignUpRequest:
+      required:
+        - password
+        - username
+      type: object
+      properties:
+        username:
+          maxLength: 20
+          minLength: 3
+          type: string
+        password:
+          maxLength: 20
+          minLength: 3
+          type: string
+    SignInRequest:
+      required:
+        - login
+        - password
+      type: object
+      properties:
+        login:
+          type: string
+        password:
+          type: string
+    JwtAuthenticationResponse:
+      type: object
+      properties:
+        token:
+          type: string
+    UpdateCartItemRequest:
+      type: object
+      properties:
+        count:
+          minimum: 1
+          type: integer
+          format: int32
+    SetOrderStatusRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - formed
+            - built
+            - delivered
+            - received
+    UserInfoResponse:
+      type: object
+      properties:
+        username:
+          type: string
+        bonuses:
+          type: integer
+          format: int32
+    CartItemResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        price:
+          type: integer
+          format: int32
+        imgRef:
+          type: string
+        count:
+          type: integer
+          format: int32
+    ProductPageResponse:
+      type: object
+      properties:
+        totalPages:
+          type: integer
+          format: int32
+        currentPage:
+          type: integer
+          format: int32
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductResponse'
+    ProductResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        price:
+          type: integer
+          format: int32
+        description:
+          type: string
+        color:
+          type: string
+        manufacturerName:
+          type: string
+        imgRef:
+          type: string
+        characteristics:
+          type: object
+          additionalProperties:
+            type: string
+    PickUpPoint:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        address:
+          type: string
+    OrderPageResponse:
+      type: object
+      properties:
+        totalPages:
+          type: integer
+          format: int32
+        currentPage:
+          type: integer
+          format: int32
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderResponse'
+    OrderResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        customerUsername:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+            - formed
+            - built
+            - delivered
+            - received
+        pickUpPointAddress:
+          type: string
+        initialCost:
+          type: integer
+          format: int32
+        paidByBonuses:
+          type: integer
+          format: int32
+  securitySchemes:
+    bearer-key:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

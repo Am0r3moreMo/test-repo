@@ -21,11 +21,11 @@ from django.contrib import admin
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("products", ProductListAPIView.as_view(), name="product-list"),
-    path("products/<int:pk>", ProductDetailAPIView.as_view(), name="product-detail"),
-    path("pickup-points", PickUpPointView.as_view(), name="pickup-list"),
-    path("cart", CartItemView.as_view(), name="cart-item-create"),
-    path("signin", SignInView.as_view(), name="signin"),
-    path("signup", SignUpView.as_view(), name="signup"),
+    path("v1/products", ProductListAPIView.as_view(), name="product-list"),
+    path("v1/products/<int:pk>", ProductDetailAPIView.as_view(), name="product-detail"),
+    path("v1/pickup-points", PickUpPointView.as_view(), name="pickup-list"),
+    path("v1/cart", CartItemView.as_view(), name="cart-item-create"),
+    path("v1/signin", SignInView.as_view(), name="signin"),
+    path("v1/signup", SignUpView.as_view(), name="signup"),
     # path("cart/", CartView.as_view(), name="pickup-list"),
 ]

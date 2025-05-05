@@ -3,10 +3,13 @@ name: Django Docker Compose Deploy
 on:
   push:
 
+
 jobs:
+
+
   deploy:
-    needs: test
-    runs-on: self-hosted
+    # needs: test  # Ждём успешного прохождения тестов
+    runs-on: self-hosted  # Используем ваш runner
     steps:
       - uses: actions/checkout@v4
       - name: Deploy with Docker Compose

@@ -3,15 +3,16 @@ name: Django Docker Compose Deploy
 on:
   push:
 
-env:
-  DOCKER_IMAGE: ghcr.io/${{ github.repository_owner }}/django-app
-  DOCKER_TAG: latest
-
 jobs:
-  test:
+  deploy:
+    needs: test
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
-      - name: Install dependencies
+      - name: Deploy with Docker Compose
         run: |
-          docker-compose up
+          cd /home/froggy/backend  # Путь к проекту на сервере
+          docker-compose down
+          git pull origin master
+          docker-compose up -d --build
+          docker system prune -f

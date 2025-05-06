@@ -8,6 +8,9 @@ jobs:
   lint:
     name: lint
     runs-on: self-hosted
+    if: |
+      contains(github.event.commits[0].modified, 'backend/') ||
+      contains(github.event.commits[0].added, 'backend/')
     steps:
       - uses: actions/checkout@v4
       

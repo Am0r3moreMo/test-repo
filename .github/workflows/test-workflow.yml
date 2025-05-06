@@ -14,8 +14,14 @@ jobs:
         id: filter
         with:
           filters: |
-            frontend: 'frontend/**'
-            backend: 'backend/**'
+            frontend: |
+              added: 'frontend/**'
+              modified: 'frontend/**'
+              deleted: 'frontend/**'
+            backend: |
+              added: 'backend/**'
+              modified: 'backend/**'
+              deleted: 'backend/**'
 
   frontend:
     needs: check-changes

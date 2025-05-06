@@ -5,7 +5,7 @@ on:
 
 jobs:
   check-changes:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
       backend: ${{ steps.filter.outputs.backend }}
@@ -20,13 +20,13 @@ jobs:
   frontend:
     needs: check-changes
     if: needs.check-changes.outputs.frontend == 'true'
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - run: echo "Building frontend..."
 
   backend:
     needs: check-changes
     if: needs.check-changes.outputs.backend == 'true'
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - run: echo "Building backend..."

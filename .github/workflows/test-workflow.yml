@@ -3,29 +3,30 @@ name: test workflow
 on:
   push:
 
-check-changes:
-  runs-on: ubuntu-latest
-  outputs:
-    frontend: ${{ steps.filter.outputs.frontend }}
-    backend: ${{ steps.filter.outputs.backend }}
-  steps:
-    - uses: dorny/paths-filter@v2
-      id: filter
-      with:
-        filters: |
-          frontend: 'frontend/**'
-          backend: 'backend/**'
+jobs:
+  check-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend: ${{ steps.filter.outputs.backend }}
+    steps:
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            frontend: 'frontend/**'
+            backend: 'backend/**'
 
-frontend:
-  needs: check-changes
-  if: needs.check-changes.outputs.frontend == 'true'
-  runs-on: ubuntu-latest
-  steps:
-    - run: echo "Building frontend..."
+  frontend:
+    needs: check-changes
+    if: needs.check-changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Building frontend..."
 
-backend:
-  needs: check-changes
-  if: needs.check-changes.outputs.backend == 'true'
-  runs-on: ubuntu-latest
-  steps:
-    - run: echo "Building backend..."
+  backend:
+    needs: check-changes
+    if: needs.check-changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Building backend..."

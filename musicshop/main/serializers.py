@@ -19,9 +19,8 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class OrderSerializer(serializers.Serializer):
+class OrderCreateRequestSerializer(serializers.Serializer):
     pickup_point_id = serializers.IntegerField(min_value=1)
-    user_id = serializers.IntegerField(min_value=1)
 
     def validate_pickup_point_id(self, value: int) -> int:
         try:
@@ -30,12 +29,20 @@ class OrderSerializer(serializers.Serializer):
         except PickUpPoint.DoesNotExist:
             raise serializers.ValidationError("Pickup point not found")
 
-    def validate_pickup_point_id(self, value: int) -> int:
-        try:
-            PickUpPoint.objects.get(pk=value)
-            return value
-        except PickUpPoint.DoesNotExist:
-            raise serializers.ValidationError("Pickup point not found")
+
+class OrderResponseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ["status", "pickup_point", "created_at", "user", "cost"]
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data["timestamp"] = data.pop("created_at")
+        status = data.pop("status")
+        data["status"] = Order.Status(status).label
+        data["customerUsername"] = User.objects.get(pk=data.pop("user")).email
+        data["pickUpPointAddress"] = PickUpPoint.objects.get(pk=data.pop("pickup_point")).address
+        return data
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -63,7 +70,7 @@ class CartItemSerializer(serializers.ModelSerializer):
         product: dict = data.pop("product")
         data["imgRef"] = product["imgRef"]
         data["name"] = product["name"]
-        data["id"] = "ШО ЗА ID?"
+        data["id"] = product["id"]
         return data
 
 

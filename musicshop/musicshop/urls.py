@@ -16,7 +16,7 @@ Including another URLconf
 """
 
 from django.urls import path
-from main.views import PickUpPointView, ProductListAPIView, ProductDetailAPIView, CartItemView, SignUpView, SignInView
+from main.views import PickUpPointView, ProductListAPIView, ProductDetailAPIView, CartItemView, SignUpView, SignInView, OrderView
 from django.contrib import admin
 
 urlpatterns = [
@@ -27,5 +27,6 @@ urlpatterns = [
     path("v1/cart", CartItemView.as_view(), name="cart-item-create"),
     path("v1/signin", SignInView.as_view(), name="signin"),
     path("v1/signup", SignUpView.as_view(), name="signup"),
+    path("v1/orders", OrderView.as_view(), name="orders"),
     # path("cart/", CartView.as_view(), name="pickup-list"),
 ]

@@ -38,16 +38,14 @@
 #         product.delete()
 #         return JsonResponse({"message": "Product deleted"})
 
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-from django.core.paginator import EmptyPage
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework import status
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -67,20 +65,22 @@ class ProductListPagination(PageNumberPagination):
     page_query_param = "pageNumber"
 
     def get_paginated_response(self, data):
-        return Response({
-            'totalPages': self.page.paginator.count,  
-            'currentPage': self.page.number,             
-            'content': data,
-        })
+        return Response(
+            {
+                "totalPages": self.page.paginator.count,
+                "currentPage": self.page.number,
+                "content": data,
+            }
+        )
 
 
 class ProductListAPIView(APIView):
     pagination_class = ProductListPagination
+
     def get(self, request):
-        
-        
-        min_price = request.GET.get('min_price')
-        max_price = request.GET.get('max_price')
+
+        min_price = request.GET.get("min_price")
+        max_price = request.GET.get("max_price")
         manufacturers = request.GET.getlist("manufacturers")
 
         products = Product.objects.all()
@@ -99,7 +99,7 @@ class ProductListAPIView(APIView):
             serializer = ProductSerializer(page, many=True)
         else:
             serializer = ProductSerializer(Product.objects.none(), many=True)
-            
+
         return paginator.get_paginated_response(serializer.data)
 
 
@@ -124,21 +124,44 @@ class PickUpPointView(APIView):
 
 
 class OrderView(APIView):
-    def post(self, request: Request) -> Response:
-        user_id = 1
-        user = User.objects.get(pk=user_id)
-        order_items = list(user.cart.items.all())
+    authentication_classes = [JWTAuthentication]
 
-        # Order(status=Order.Status.FORMED, pickup_point_id)
-        #
-        # for item in order_items:
+    def post(self, request: Request) -> Response:
+        user = User.objects.get(pk=request.user.id)
+
+        cart_items = list(user.cart.items.all())
+        if not cart_items:
+            return Response({"error": "Корзина пуста"}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = OrderCreateRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        order = Order(
+            pickup_point=PickUpPoint.objects.get(pk=serializer.validated_data["pickup_point_id"]),
+            status=Order.Status.FORMED,
+            user=user,
+        )
+        order.save()
+
+
+        for cart_item in cart_items:
+            OrderItem(order=order, quantity=cart_item.quantity, product=cart_item.product).save()
+            order.cost += cart_item.product.price * cart_item.quantity
+        order.save()
+
+        user.cart.items.all().delete()
+
+        return Response(OrderResponseSerializer(order).data, status=status.HTTP_201_CREATED)
 
     def get(self, request: Request) -> Response:
-        user_orders = Order.objects.all()
-        return Response(list(user_orders))
+        user = User.objects.get(pk=request.user.id)
+        user_orders = Order.objects.filter(user=user)
+        return Response(OrderResponseSerializer(user_orders, many=True).data)
 
 
 class SignUpView(APIView):
+    # TODO: проблема с ответом. user - словарь, а не username.
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -154,6 +177,7 @@ class SignUpView(APIView):
 
 
 class SignInView(APIView):
+    # TODO: проблема с ответом. user - словарь, а не username.
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -181,8 +205,6 @@ class CartItemView(APIView):
                 status=status.HTTP_201_CREATED,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    # def delete(self):
 
     def get(self, request: Request) -> Response:
         items = CartItem.objects.filter(cart__user=request.user).prefetch_related("product")

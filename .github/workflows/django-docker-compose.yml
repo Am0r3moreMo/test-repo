@@ -5,17 +5,34 @@ on:
 
 
 jobs:
-
-
+  lint:
+    name: lint
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+      
+      - name: Install Black
+        run: |
+          pip install black
+      
+      - name: Check formatting
+        run: |
+          black --check backend
+        
   deploy:
-    # needs: test  # Ждём успешного прохождения тестов
-    runs-on: self-hosted  # Используем ваш runner
+    name: deploy
+    needs: lint
+    runs-on: self-hosted  
     steps:
       - uses: actions/checkout@v4
       - name: Deploy with Docker Compose
         run: |
           cd /home/froggy/backend  # Путь к проекту на сервере
-          docker-compose down
+          git checkout master
           git pull origin master
+          docker-compose down
           docker-compose up -d --build
           docker system prune -f

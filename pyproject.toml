@@ -2,7 +2,7 @@
 name = "backend"
 version = "0.1.0"
 description = ""
-authors = [{ name = "Your Name", email = "123@gmail.com" }]
+authors = [{ name = "Ratnikov Vladislav", email = "123@gmail.com" }]
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [

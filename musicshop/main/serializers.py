@@ -41,14 +41,25 @@ class OrderResponseSerializer(serializers.ModelSerializer):
         status = data.pop("status")
         data["status"] = Order.Status(status).label
         data["customerUsername"] = User.objects.get(pk=data.pop("user")).email
-        data["pickUpPointAddress"] = PickUpPoint.objects.get(pk=data.pop("pickup_point")).address
+        data["pickUpPointAddress"] = PickUpPoint.objects.get(
+            pk=data.pop("pickup_point")
+        ).address
         return data
 
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ["id", "name", "price", "description", "color", "manufacturer", "img_ref", "characteristics"]
+        fields = [
+            "id",
+            "name",
+            "price",
+            "description",
+            "color",
+            "manufacturer",
+            "img_ref",
+            "characteristics",
+        ]
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -143,7 +154,9 @@ class CartItemCreateSerializer(serializers.ModelSerializer):
         product = Product.objects.get(pk=validated_data["product_id"])
 
         cart_item, created = CartItem.objects.get_or_create(
-            cart=user.cart, product=product, defaults={"quantity": validated_data["quantity"]}
+            cart=user.cart,
+            product=product,
+            defaults={"quantity": validated_data["quantity"]},
         )
 
         if not created:
@@ -180,7 +193,9 @@ class CartItemDeleteSerializer(serializers.ModelSerializer):
         product = Product.objects.get(pk=validated_data["product_id"])
 
         cart_item, created = CartItem.objects.get_or_create(
-            cart=user.cart, product=product, defaults={"quantity": validated_data["quantity"]}
+            cart=user.cart,
+            product=product,
+            defaults={"quantity": validated_data["quantity"]},
         )
 
         if not created:

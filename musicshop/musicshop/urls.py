@@ -16,7 +16,15 @@ Including another URLconf
 """
 
 from django.urls import path
-from main.views import PickUpPointView, ProductListAPIView, ProductDetailAPIView, CartItemView, SignUpView, SignInView, OrderView
+from main.views import (
+    PickUpPointView,
+    ProductListAPIView,
+    ProductDetailAPIView,
+    CartItemView,
+    SignUpView,
+    SignInView,
+    OrderView,
+)
 from django.contrib import admin
 
 urlpatterns = [

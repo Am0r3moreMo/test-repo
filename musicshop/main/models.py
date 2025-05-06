@@ -9,6 +9,10 @@ from django.conf import settings
 
 
 class Product(models.Model):
+    class Meta:
+        verbose_name = "Товар"
+        verbose_name_plural = "Товары"
+
     name = models.CharField(max_length=200)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(max_length=3000, blank=True, default="")
@@ -20,12 +24,20 @@ class Product(models.Model):
 
 
 class PickUpPoint(models.Model):
+    class Meta:
+        verbose_name = "Пункт выдачи"
+        verbose_name_plural = "Пункты выдачи"
+
     name = models.CharField(max_length=200)
     address = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
 
 class User(models.Model):
+    class Meta:
+        verbose_name = "Пользователь"
+        verbose_name_plural = "Пользователи"
+
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=128)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -49,6 +61,10 @@ class User(models.Model):
 
 
 class Cart(models.Model):
+    class Meta:
+        verbose_name = "Корзина"
+        verbose_name_plural = "Корзины"
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="cart")
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -60,6 +76,10 @@ class Cart(models.Model):
 
 
 class Order(models.Model):
+    class Meta:
+        verbose_name = "Заказ"
+        verbose_name_plural = "Заказы"
+
     class Status(models.IntegerChoices):
         FORMED = 1, "formed"
         BUILT = 2, "built"
@@ -67,7 +87,9 @@ class Order(models.Model):
         RECEIVED = 4, "received"
 
     status = models.IntegerField(choices=Status.choices)
-    pickup_point = models.ForeignKey(PickUpPoint, on_delete=models.CASCADE, related_name="orders")
+    pickup_point = models.ForeignKey(
+        PickUpPoint, on_delete=models.CASCADE, related_name="orders"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders")
     cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -94,7 +116,10 @@ class CartItem(models.Model):
     quantity = models.PositiveIntegerField(default=1)
 
     class Meta:
-        unique_together = ("cart", "product")  # нельзя дважды добавить один и тот же товар
+        unique_together = (
+            "cart",
+            "product",
+        )  # нельзя дважды добавить один и тот же товар
 
     def total_price(self):
         return self.quantity * self.product.price

@@ -61,17 +61,46 @@ from .serializers import *
 from .models import *
 
 
-class CustomPagination(PageNumberPagination):
+class ProductListPagination(PageNumberPagination):
     page_size = 10
-    page_size_query_param = "page_size"
-    page_query_param = "page"
+    page_size_query_param = "pageSize"
+    page_query_param = "pageNumber"
+
+    def get_paginated_response(self, data):
+        return Response({
+            'totalPages': self.page.paginator.count,  
+            'currentPage': self.page.number,             
+            'content': data,
+        })
 
 
 class ProductListAPIView(APIView):
+    pagination_class = ProductListPagination
     def get(self, request):
+        
+        
+        min_price = request.GET.get('min_price')
+        max_price = request.GET.get('max_price')
+        manufacturers = request.GET.getlist("manufacturers")
+
         products = Product.objects.all()
-        serializer = ProductSerializer(products, many=True)
-        return Response(serializer.data)
+
+        # Применяем фильтрацию, если параметры переданы
+        if min_price is not None:
+            products = products.filter(price__gte=min_price)
+        if max_price is not None:
+            products = products.filter(price__lte=max_price)
+        if manufacturers:
+            products = products.filter(manufacturer__in=manufacturers)
+
+        paginator = self.pagination_class()
+        page = paginator.paginate_queryset(products, request)
+        if page is not None:
+            serializer = ProductSerializer(page, many=True)
+        else:
+            serializer = ProductSerializer(Product.objects.none(), many=True)
+            
+        return paginator.get_paginated_response(serializer.data)
 
 
 class ProductDetailAPIView(APIView):

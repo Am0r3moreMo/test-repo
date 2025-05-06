@@ -11,6 +11,7 @@ RUN curl -sSL https://install.python-poetry.org | python3 - \
     && ln -s /opt/poetry/bin/poetry \
     && poetry config virtualenvs.create true
 
+    
 WORKDIR /app
 ENV PYTHONPATH=/app
 ENV PATH="/app/.venv/bin:$PATH"
